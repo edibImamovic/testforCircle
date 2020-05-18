@@ -1,0 +1,11 @@
+version: 2.1
+orbs:
+  newman: postman/newman@0.0.2
+jobs:
+  build:
+    executor: newman/postman-newman-docker
+    steps:
+      - newman/newman-run:
+          collection: METestColl.json
+          environment: METestEnv.json
+          timeout: '3000'
