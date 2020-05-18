@@ -7,5 +7,3 @@ jobs:
     steps:
       - newman/newman-run:
          collection: ./tests/METestColl.json
-         environment: /tests/METestEnv.postman_environment.json
-         timeout: '3000'
