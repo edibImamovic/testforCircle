@@ -6,6 +6,4 @@ jobs:
     executor: newman/postman-newman-docker
     steps:
       - newman/newman-run:
-          collection: ./METestColl.json
-          environment: ./METestEnv.json
-          timeout: '3000'
+        --delay-request 4000 METestColl.json -e METestEnv.json
