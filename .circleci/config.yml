@@ -9,4 +9,4 @@ jobs:
       - newman/newman-run:
           collection: ./tests/METestColl.postman_collection.json
           environment: ./tests/METestEnv.postman_environment.json
-          timeout: '3000'
+          timeout: '5000'
