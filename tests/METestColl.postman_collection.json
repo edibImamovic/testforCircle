@@ -211,23 +211,17 @@
 										"id": "19bac447-13b7-41c9-85d1-85f935ca20f6",
 										"exec": [
 											"responseHTML = cheerio(pm.response.text());\r",
-											"//var category = responseHTML.find('td.emailButton:contains(\"http://email.mailgun.motionelements.com/o/\")').link();\r",
 											"var category = responseHTML.find('td.emailButton').children().attr(\"href\");\r",
-											"\r",
-											"//a.find('.td.emailButton').find('img').attr('src');\r",
-											"\r",
 											"var categoryStr = String(category);\r",
-											"\r",
 											"\r",
 											"pm.test(\"response is ok\", function () {\r",
 											"    pm.response.to.have.status(200);\r",
 											"});\r",
 											"\r",
 											"pm.test(\"Mail parser for usable activation link\", function () {\r",
-											"    var code = category.replace(\"https://www.motionelements.com/signup/verify?code=\", \"\");\r",
+											"    var code = category.replace(\"https://stage.motionelements.com/signup/verify?code=\", \"\");\r",
 											"\r",
 											"    var linkForActivation = code;\r",
-											"    linkForActivation = linkForActivation.substring(0, linkForActivation.indexOf('&'));\r",
 											"    pm.expect(linkForActivation).to.be.string;\r",
 											"    pm.environment.set(\"linkForActivation\", linkForActivation);\r",
 											"});\r",
@@ -599,7 +593,7 @@
 							"response": []
 						},
 						{
-							"name": "Login without password ( Negative test )",
+							"name": "Login with invalid password ( Negative test )",
 							"event": [
 								{
 									"listen": "test",
@@ -644,6 +638,140 @@
 										{
 											"key": "password",
 											"value": "Password",
+											"type": "text"
+										}
+									],
+									"options": {
+										"urlencoded": {}
+									}
+								},
+								"url": {
+									"raw": "{{endpoint}}/v2/account/login",
+									"host": [
+										"{{endpoint}}"
+									],
+									"path": [
+										"v2",
+										"account",
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Login without password ( Negative test )",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "07d80fd4-8974-43ec-bef9-fd716558b27d",
+										"exec": [
+											"\r",
+											"var response = JSON.parse(responseBody);\r",
+											"var title = response.errors[0].title;\r",
+											"\r",
+											"var getTitleMessage = \"Failed to login.\"\r",
+											"\r",
+											"pm.test(\"Response is ok\", function () {\r",
+											"    pm.response.to.have.status(401);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"title: \" + title, function () {\r",
+											"    pm.expect(title).to.not.be.null;\r",
+											"    pm.expect(title).to.eql(getTitleMessage);\r",
+											"\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "username",
+											"value": "{{email}}",
+											"description": "Username or email address.",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "",
+											"type": "text"
+										}
+									],
+									"options": {
+										"urlencoded": {}
+									}
+								},
+								"url": {
+									"raw": "{{endpoint}}/v2/account/login",
+									"host": [
+										"{{endpoint}}"
+									],
+									"path": [
+										"v2",
+										"account",
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Login with invalid username ( Negative test )",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "c4ef8eb0-1c6d-4e81-9c89-427e1b83f6cf",
+										"exec": [
+											"\r",
+											"var response = JSON.parse(responseBody);\r",
+											"var title = response.errors[0].title;\r",
+											"\r",
+											"var getTitleMessage = \"Failed to login.\"\r",
+											"\r",
+											"pm.test(\"Response is ok\", function () {\r",
+											"    pm.response.to.have.status(401);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"title: \" + title, function () {\r",
+											"    pm.expect(title).to.not.be.null;\r",
+											"    pm.expect(title).to.eql(getTitleMessage);\r",
+											"\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "username",
+											"value": "thisisatest@gmail.com",
+											"description": "Username or email address.",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "{{signup_password}}",
 											"type": "text"
 										}
 									],
@@ -793,8 +921,10 @@
 									"var username = data.username;\r",
 									"var email = data.email;\r",
 									"var email_verified = data.email_verified;\r",
+									"var currency = data.currency;\r",
 									"\r",
 									"var getEmail = pm.environment.get(\"email\")\r",
+									"var getCurrency = \"usd\";\r",
 									"\r",
 									"pm.test(\"Response is ok\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
@@ -828,6 +958,11 @@
 									"\r",
 									"pm.test(\"email_verified: \" + email_verified, function () {\r",
 									"    pm.expect(email_verified).to.be.true;\r",
+									"\r",
+									"});\r",
+									"\r",
+									"pm.test(\"currency: \" + currency, function () {\r",
+									"    pm.expect(currency).to.eql(getCurrency);\r",
 									"\r",
 									"});\r",
 									"\r",
